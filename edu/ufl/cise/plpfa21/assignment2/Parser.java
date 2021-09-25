@@ -14,7 +14,7 @@ public class Parser implements IPLPParser {
 	String errorMessage;
 	IPLPToken t; // next token
 	
-	public Parser (IPLPLexer input) throws LexicalException{
+	public Parser (IPLPLexer input) throws Exception{
 		this.inputLexer = input;
 		t = inputLexer.nextToken();
 		line = t.getLine();
@@ -50,6 +50,12 @@ public class Parser implements IPLPParser {
 				return true;
 			}
 			case IDENTIFIER -> {
+				return true;
+			}
+			case BANG -> {
+				return true;
+			}
+			case MINUS -> {
 				return true;
 			}
 			default -> {
@@ -102,7 +108,7 @@ public class Parser implements IPLPParser {
 			}
 		
 			default -> {
-					throw new IllegalArgumentException("Unexpected value: " + t.getKind());
+				throw new SyntaxException(t.getText(), t.getLine(), t.getCharPositionInLine());
 			}
 		}
 	}
@@ -209,19 +215,25 @@ public class Parser implements IPLPParser {
 				match(IPLPToken.Kind.SEMI);
 			}
 			default -> {
-				expression();
-				if(isKind(t, IPLPToken.Kind.ASSIGN)) {
-					consume();
+				
+				if(isExpStart()) {
 					expression();
-					match(IPLPToken.Kind.SEMI);
+					if(isKind(t, IPLPToken.Kind.ASSIGN)) {
+						consume();
+						expression();
+						match(IPLPToken.Kind.SEMI);
+					}
+					else if(isKind(t, IPLPToken.Kind.SEMI)) {
+						consume();
+					}
+					else {
+						throw new SyntaxException(t.getText(), t.getLine(), t.getCharPositionInLine());
+					}
 				}
-				else if(isKind(t, IPLPToken.Kind.SEMI)) {
-					consume();
-				}
+				
 				else {
-					throw new IllegalArgumentException("Unexpected value: " + t.getKind());
-				}
-					
+					throw new SyntaxException(t.getText(), t.getLine(), t.getCharPositionInLine());
+				}	
 			}
 		}
 	}
@@ -320,7 +332,7 @@ public class Parser implements IPLPParser {
 					}
 				}
 			}
-			default -> throw new IllegalArgumentException("Unexpected value: " + t.getKind());
+			default -> throw new SyntaxException(t.getText(), t.getLine(), t.getCharPositionInLine());
 			
 		}
 	}
@@ -351,10 +363,10 @@ public class Parser implements IPLPParser {
 						
 						
 					}
-					default -> throw new IllegalArgumentException("Unexpected value: " + t.getKind());
+					default -> throw new SyntaxException(t.getText(), t.getLine(), t.getCharPositionInLine());
 				}
 			}
-			default -> throw new IllegalArgumentException("Unexpected value: " + t.getKind());
+			default -> throw new SyntaxException(t.getText(), t.getLine(), t.getCharPositionInLine());
 		}
 	}
 

@@ -8,6 +8,8 @@ public class Token implements IPLPToken {
 	int token_posInLine;
 	int num;
 	int flag;
+	int len;
+	int i;
 	String strValue;
 	String token_text;
 	String errorMessage;
@@ -15,6 +17,7 @@ public class Token implements IPLPToken {
 	
 	public Token (Kind kind, int pos, int length, int line, int posInLine, String text){
 		flag = 0;
+		i = 0;
 		token_kind = kind;
 		token_pos = pos;
 		token_length = length;
@@ -52,16 +55,19 @@ public class Token implements IPLPToken {
 
 	@Override
 	public String getStringValue() {
+		len = strValue.length();
 		if(strValue.charAt(0) == '\"')
 			strValue = strValue.replaceAll("\"", "");
 		else if(strValue.charAt(0) == '\'')
 			strValue = strValue.replaceAll("\'", "");
-		
-		strValue = strValue.replaceAll("\n", ""); 
-		strValue = strValue.replaceAll("\b", "");
-		strValue = strValue.replaceAll("\t", "");
-		strValue = strValue.replaceAll("\r", "");
-		strValue = strValue.replaceAll("\f", "");
+
+		strValue = strValue.replaceAll("\\\\\"", "\"");
+		strValue = strValue.replaceAll("\\\\\'", "\'");
+		strValue = strValue.replaceAll("\\\\n", "\n"); 
+		strValue = strValue.replaceAll("\\\\b", "\b");
+		strValue = strValue.replaceAll("\\\\t", "\t");
+		strValue = strValue.replaceAll("\\\\r", "\r");
+		strValue = strValue.replaceAll("\\\\f", "\f");
 		strValue = strValue.replaceAll("\\\\", "\\"); 
 		return strValue;
 	}
